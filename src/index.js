@@ -1,10 +1,9 @@
 import Koa from 'koa'
+import Router from './router'
 
 const app = new Koa()
 
-app.use(ctx => {
-  ctx.body = 'Hello Koa'
-})
+app.use(Router.routes()).use(Router.allowedMethods())
 
 app.listen(3000, () => {
   console.log('server is listening to port 3000')
