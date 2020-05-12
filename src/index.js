@@ -5,6 +5,7 @@ const app = new Koa()
 
 app.use(Router.routes()).use(Router.allowedMethods())
 
-app.listen(3000, () => {
-  console.log('server is listening to port 3000')
+const port = 8000
+app.listen(port, () => {
+  console.log(`server is listening to port ${port}`)
 })

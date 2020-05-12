@@ -1,9 +1,9 @@
 import Router from '@koa/router'
 
-import Posts from '../controller/posts'
+import PostsController from '../controller/posts'
 
 const router = new Router()
-const { getAllPosts, getPost } = Posts
+const { getAllPosts, getPost } = PostsController
 
 router.get('/', getAllPosts)
 router.get('/:postId', getPost)
