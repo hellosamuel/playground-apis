@@ -32,11 +32,12 @@ const posts = [
   },
 ]
 
-const Posts = {
-  getAllPosts: async ctx => {
+class Posts {
+  getAllPosts = async ctx => {
     ctx.body = posts
-  },
-  getPost: async ctx => {
+  }
+
+  getPost = async ctx => {
     const {
       params: { postId },
     } = ctx
@@ -48,7 +49,9 @@ const Posts = {
       ctx.throw(404, 'No Post')
     }
     ctx.body = post
-  },
+  }
 }
 
-export default Posts
+const PostsController = new Posts()
+
+export default PostsController
