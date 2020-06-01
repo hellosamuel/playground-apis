@@ -32,7 +32,7 @@ const posts = [
   },
 ]
 
-class Posts {
+class PostsController {
   getAllPosts = async ctx => {
     ctx.body = posts
   }
@@ -51,7 +51,5 @@ class Posts {
     ctx.body = post
   }
 }
-
-const PostsController = new Posts()
 
 export default PostsController
