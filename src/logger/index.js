@@ -51,3 +51,4 @@ const errorLogger = async (ctx, next) => {
 }
 
 export { requestLogger, errorLogger }
+export default logger
