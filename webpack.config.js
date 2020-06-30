@@ -23,7 +23,6 @@ module.exports = {
                 },
               ],
             ],
-            plugins: ['@babel/plugin-proposal-class-properties'],
           },
         },
       },
@@ -32,5 +31,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js',
+  },
+  stats: {
+    warningsFilter: '../../db/models',
   },
 }
