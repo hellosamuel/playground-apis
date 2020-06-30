@@ -1,6 +1,8 @@
+import bcrypt from 'bcrypt'
+
 module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define(
-    'users',
+    'User',
     {
       id: {
         type: DataTypes.BIGINT,
@@ -10,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       username: {
         type: DataTypes.TEXT,
         allowNull: false,
+        unique: true,
       },
-      password: {
+      hashedPassword: {
         type: DataTypes.TEXT,
         allowNull: false,
       },
@@ -25,16 +28,36 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      tableName: 'users',
       setterMethods: {
-        password(pw) {
-          const changedPw = `${pw}+1234helloWorld`
-          this.setDataValue('password', changedPw)
+        password(password) {
+          const hashedPassword = bcrypt.hashSync(password, 10)
+          this.set('hashedPassword', hashedPassword)
         },
       },
     }
   )
-  user.associate = function(models) {
+
+  user.associate = function (models) {
     // associations can be defined here
   }
+
+  // class method
+  user.findByUsername = function (username) {
+    return this.findOne({ where: { username } })
+  }
+
+  // instance method
+  user.prototype.checkPassword = async function (password) {
+    const result = await bcrypt.compare(password, this.get('hashedPassword'))
+    return result
+  }
+
+  user.prototype.serialize = function () {
+    const data = this.get({ plain: true })
+    delete data.hashedPassword
+    return data
+  }
+
   return user
 }

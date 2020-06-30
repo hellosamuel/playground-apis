@@ -1,19 +1,38 @@
-import { users } from '../../db/models'
+import { User } from '../../db/models'
 
 export const register = async ctx => {
   const { username, password } = ctx.request.body
   try {
-    const user = users.build({ username, password })
-    await user.save()
-    console.log(user)
+    const user = await User.findByUsername(username)
+    if (user) ctx.throw(409, 'Already Exist Username')
+
+    // way no.1
+    // const user = await User.create({ username, originPassword })
+
+    // way no.2
+    const newUser = User.build({ username, password })
+    await newUser.save()
+
+    ctx.body = newUser.serialize()
   } catch (e) {
     ctx.throw(500, e)
   }
-  ctx.body = { username, password }
 }
 
-export const login = ctx => {
+export const login = async ctx => {
+  const { username, password } = ctx.request.body
+  try {
+    // This is for test! Don't reveal about what information doesn't match
+    const user = await User.findByUsername(username)
+    if (!user) ctx.throw(401, 'No Username')
 
+    const valid = await user.checkPassword(password)
+    if (!valid) ctx.throw(401, 'Wrong Password')
+
+    ctx.body = user.serialize()
+  } catch (e) {
+    ctx.throw(500, e)
+  }
 }
 
 export const check = ctx => {

@@ -10,8 +10,9 @@ module.exports = {
       username: {
         type: Sequelize.TEXT,
         allowNull: false,
+        unique: true,
       },
-      password: {
+      hashedPassword: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
