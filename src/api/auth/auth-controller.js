@@ -1,16 +1,16 @@
-import { User } from '../../db/models'
+import Database from '../../db/models'
 
 export const register = async ctx => {
   const { username, password } = ctx.request.body
   try {
-    const user = await User.findByUsername(username)
+    const user = await Database.User.findByUsername(username)
     if (user) ctx.throw(409, 'Already Exist Username')
 
     // way no.1
     // const user = await User.create({ username, originPassword })
 
     // way no.2
-    const newUser = User.build({ username, password })
+    const newUser = Database.User.build({ username, password })
     await newUser.save()
 
     ctx.body = newUser.serialize()
@@ -23,7 +23,7 @@ export const login = async ctx => {
   const { username, password } = ctx.request.body
   try {
     // This is for test! Don't reveal about what information doesn't match
-    const user = await User.findByUsername(username)
+    const user = await Database.User.findByUsername(username)
     if (!user) ctx.throw(401, 'No Username')
 
     const valid = await user.checkPassword(password)

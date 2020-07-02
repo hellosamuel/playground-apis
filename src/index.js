@@ -5,6 +5,8 @@ import Config, { setCors } from './config'
 import { requestLogger, errorLogger } from './logger'
 import api from './api'
 
+console.log(process.env.NODE_ENV)
+
 const app = new Koa()
 const router = new Router()
 
