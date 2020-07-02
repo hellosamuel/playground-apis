@@ -15,8 +15,7 @@ $ cp yarn.lock [dest]
 
 $ cd [dest]
 $ yarn --production
-$ sequelize db:migrate
-$ sequelize db:seed:all
+$ yarn db:sync
 
 START APPLICATION ex) pm2 start .src/index.js
 ```
