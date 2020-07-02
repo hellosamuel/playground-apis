@@ -29,8 +29,6 @@ sequelize
 const modelsDir =
   process.env.NODE_ENV === 'development' ? __dirname : `${__dirname}/db/models`
 
-console.log(modelsDir)
-
 fs.readdirSync(modelsDir)
   .filter(file => {
     return (

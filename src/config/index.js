@@ -1,7 +1,6 @@
-import envs from 'dotenv'
 import cors from '@koa/cors'
 
-envs.config()
+require('dotenv').config()
 
 const Config = {
   port: Number(process.env.PORT) || 8000,
