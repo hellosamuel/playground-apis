@@ -1,17 +1,25 @@
 import Koa from 'koa'
+import Router from '@koa/router'
 import koaBody from 'koa-body'
-import Config from './config'
+
+import Config, { setCors } from './config'
 import { requestLogger, errorLogger } from './logger'
-import Router from './router'
+import api from './api'
+import jwtMiddleware from './lib/jwtMiddleware'
 
 const app = new Koa()
+const router = new Router()
+
+router.use('/api', api.routes())
+
+app.use(setCors())
 
 app.use(koaBody())
 app.use(requestLogger).use(errorLogger)
+app.use(jwtMiddleware)
 
-app.use(Config.server.cors())
-app.use(Router.routes()).use(Router.allowedMethods())
+app.use(router.routes()).use(router.allowedMethods())
 
-app.listen(Config.server.port, () => {
-  console.log(`App is listening to port ${Config.server.port}`)
+app.listen(Config.port, () => {
+  console.log(`App is listening to port ${Config.port}`)
 })
