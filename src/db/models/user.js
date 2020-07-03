@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 module.exports = (sequelize, DataTypes) => {
-  const user = sequelize.define(
+  const User = sequelize.define(
     'User',
     {
       id: {
@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'users',
+      timestamps: false,
       setterMethods: {
         password(password) {
           const hashedPassword = bcrypt.hashSync(password, 10)
@@ -39,33 +40,31 @@ module.exports = (sequelize, DataTypes) => {
     }
   )
 
-  user.associate = function (models) {
-    // associations can be defined here
+  User.associate = function (models) {
+    User.hasMany(models.Post, { foreignKey: 'userId' })
   }
 
   // class method
-  user.findByUsername = function (username) {
+  User.findByUsername = function (username) {
     return this.findOne({ where: { username } })
   }
 
   // instance method
-  user.prototype.checkPassword = async function (password) {
+  User.prototype.checkPassword = async function (password) {
     const result = await bcrypt.compare(password, this.get('hashedPassword'))
     return result
   }
 
-  user.prototype.serialize = function () {
-    const data = this.get({ plain: true })
-    delete data.id
-    delete data.hashedPassword
-    return data
+  User.prototype.serialize = function () {
+    const { id, username } = this.get({ plain: true })
+    return { id, username }
   }
 
-  user.prototype.generateToken = function () {
+  User.prototype.generateToken = function () {
     const token = jwt.sign(
       {
+        id: this.get('id'),
         username: this.get('username'),
-        createdAt: this.get('createdAt'),
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -73,5 +72,5 @@ module.exports = (sequelize, DataTypes) => {
     return token
   }
 
-  return user
+  return User
 }

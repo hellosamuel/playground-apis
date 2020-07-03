@@ -1,9 +1,16 @@
+import * as yup from 'yup'
 import Database from '../../db/models'
 
 const { User } = Database
 
 export const register = async ctx => {
   const { username, password } = ctx.request.body
+
+  const userSchema = yup.object({
+    username: yup.string().required().trim().min(5).max(20),
+    password: yup.string().required(),
+  })
+
   try {
     const user = await User.findByUsername(username)
     if (user) {
@@ -11,15 +18,22 @@ export const register = async ctx => {
       ctx.body = 'Already Exist Username'
       return
     }
+
+    const validUser = await userSchema.validate({ username, password })
     // Way 1
-    // const user = await User.create({ username, originPassword })
+    // const newUser = await User.create(validUser)
 
     // Way 2
-    const newUser = User.build({ username, password })
+    const newUser = User.build(validUser)
     await newUser.save()
 
     ctx.body = newUser.serialize()
   } catch (e) {
+    if (e instanceof yup.ValidationError) {
+      ctx.status = 400
+      ctx.body = e.message
+      return
+    }
     ctx.throw(500, e)
   }
 }

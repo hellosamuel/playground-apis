@@ -8,11 +8,8 @@ const jwtMiddleware = async (ctx, next) => {
   if (!token) return next()
 
   try {
-    const { username, createdAt, exp } = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    )
-    ctx.state.user = { username, createdAt }
+    const { id, username, exp } = jwt.verify(token, process.env.JWT_SECRET)
+    ctx.state.user = { id, username }
 
     // Less than 1hour, refresh token
     const now = Math.floor(Date.now() / 1000)
