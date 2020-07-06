@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'users',
-      timestamps: false,
       setterMethods: {
         password(password) {
           const hashedPassword = bcrypt.hashSync(password, 10)
@@ -41,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
   )
 
   User.associate = function (models) {
-    User.hasMany(models.Post, { foreignKey: 'userId' })
+    User.hasMany(models.Post, { foreignKey: 'id' })
   }
 
   // class method

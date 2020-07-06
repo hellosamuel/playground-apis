@@ -2,25 +2,7 @@ import * as yup from 'yup'
 
 import Database from '../../db/models'
 
-const { Post } = Database
-
-const posts = [
-  {
-    id: 1,
-    title: 'Title 1',
-    body: 'Body 1',
-  },
-  {
-    id: 2,
-    title: 'Title 2',
-    body: 'Body 2',
-  },
-  {
-    id: 3,
-    title: 'Title 3',
-    body: 'Body 3',
-  },
-]
+const { Sequelize, Post, User } = Database
 
 export const getPostById = async (ctx, next) => {
   const { id } = ctx.params
@@ -43,7 +25,33 @@ export const getPostById = async (ctx, next) => {
 }
 
 export const list = async ctx => {
-  ctx.body = posts
+  const page = parseInt(ctx.query.page || '1', 10)
+  if (page < 1) {
+    ctx.status = 400
+    return
+  }
+
+  const { username, tag } = ctx.query
+  const conditions = {
+    ...(username ? { '$Author.username$': username } : {}),
+    ...(tag ? { tags: { [Sequelize.Op.contains]: tag } } : {}),
+  }
+  const pageSize = 10
+
+  try {
+    const posts = await Post.findAndCountAll({
+      include: [{ model: User, as: 'Author', attributes: ['username'] }],
+      // include: ['Author'],
+      where: conditions,
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+      order: [['id', 'DESC']],
+    })
+    ctx.set('Last-Page', Math.ceil(posts.count / pageSize))
+    ctx.body = posts.rows
+  } catch (e) {
+    ctx.throw(500, e)
+  }
 }
 
 export const read = async ctx => {
