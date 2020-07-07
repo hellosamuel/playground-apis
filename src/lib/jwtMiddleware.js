@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import Database from '../db/models'
+import { decrypt } from './cryptoHelper'
 
 const { User } = Database
 
@@ -8,7 +9,8 @@ const jwtMiddleware = async (ctx, next) => {
   if (!token) return next()
 
   try {
-    const { id, username, exp } = jwt.verify(token, process.env.JWT_SECRET)
+    const { payload, exp } = jwt.verify(token, process.env.JWT_SECRET)
+    const { id, username } = JSON.parse(decrypt(payload))
     ctx.state.user = { id, username }
 
     // Less than 1hour, refresh token

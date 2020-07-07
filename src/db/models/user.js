@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { encrypt } = require('../../lib/cryptoHelper')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -60,11 +61,13 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   User.prototype.generateToken = function () {
+    const payload = {
+      id: this.get('id'),
+      username: this.get('username'),
+    }
+
     const token = jwt.sign(
-      {
-        id: this.get('id'),
-        username: this.get('username'),
-      },
+      { payload: encrypt(JSON.stringify(payload)) },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     )
