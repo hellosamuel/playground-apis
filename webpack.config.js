@@ -5,7 +5,6 @@ module.exports = {
   entry: './src/index.js',
   mode: 'production',
   target: 'node',
-  node: { __dirname: false },
   externals: [nodeExternals()],
   module: {
     rules: [
@@ -32,8 +31,5 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js',
-  },
-  stats: {
-    warningsFilter: '../../db/models',
   },
 }

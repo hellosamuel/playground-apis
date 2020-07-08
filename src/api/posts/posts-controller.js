@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 
-import Database from '../../db/models'
+import Database from '../../models'
 
 const { Sequelize, Post, User } = Database
 

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import Database from '../db/models'
+import Database from '../models'
 import { decrypt } from './cryptoHelper'
 
 const { User } = Database

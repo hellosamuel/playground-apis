@@ -7,15 +7,15 @@
 ```shell script
 $ yarn build
 
-$ cp ./dist/index.js [dest/src/]
-$ cp -R ./src/db [dest/src/]
+$ cp ./dist/index.js [dest]
+$ cp -R ./sequelize [dest]
 $ cp .sequelizerc [dest]
 $ cp package.json [dest]
 $ cp yarn.lock [dest]
 
 $ cd [dest]
-$ yarn --production
+$ yarn --prod
 $ yarn db:sync
 
-START APPLICATION ex) pm2 start .src/index.js
+START APPLICATION ex) pm2 --no-daemon start index.js
 ```

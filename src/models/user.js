@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const { encrypt } = require('../../lib/cryptoHelper')
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { encrypt } from '../lib/cryptoHelper'
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
     {
