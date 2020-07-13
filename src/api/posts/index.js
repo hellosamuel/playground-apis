@@ -9,6 +9,18 @@ posts.post('/', checkLoggedIn, postsController.create)
 
 const post = new Router()
 post.get('/', postsController.read)
+post.patch(
+  '/',
+  checkLoggedIn,
+  postsController.checkOwnPost,
+  postsController.update
+)
+post.delete(
+  '/',
+  checkLoggedIn,
+  postsController.checkOwnPost,
+  postsController.remove
+)
 
 posts.use('/:id', postsController.getPostById, post.routes())
 

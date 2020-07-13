@@ -24,6 +24,15 @@ export const getPostById = async (ctx, next) => {
   }
 }
 
+export const checkOwnPost = async (ctx, next) => {
+  const { user, post } = ctx.state
+  if (user.id !== post.userId) {
+    ctx.status = 403
+    return
+  }
+  return next()
+}
+
 export const list = async ctx => {
   const page = parseInt(ctx.query.page || '1', 10)
   if (page < 1) {
@@ -81,6 +90,48 @@ export const create = async ctx => {
       ctx.body = e.message
       return
     }
+    ctx.throw(500, e)
+  }
+}
+
+export const update = async ctx => {
+  const postId = parseInt(ctx.params.id, 10)
+
+  const postSchema = yup.object({
+    title: yup.string().trim(),
+    content: yup.string(),
+    tags: yup.array().of(yup.string().trim()),
+  })
+
+  try {
+    const validPost = await postSchema.validate({ ...ctx.request.body })
+    const [result, updatedPost] = await Post.update(validPost, {
+      where: { id: postId },
+      returning: true,
+    })
+
+    if (!result) {
+      ctx.status = 404
+      return
+    }
+    ctx.body = updatedPost[0].get({ plain: true })
+  } catch (e) {
+    if (e instanceof yup.ValidationError) {
+      ctx.status = 400
+      ctx.body = e.message
+      return
+    }
+    ctx.throw(500, e)
+  }
+}
+
+export const remove = async ctx => {
+  const { post } = ctx.state
+
+  try {
+    await post.destroy()
+    ctx.status = 204
+  } catch (e) {
     ctx.throw(500, e)
   }
 }
