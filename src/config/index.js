@@ -15,7 +15,9 @@ const Config = {
 
 export function setCors() {
   const corsOption = {
-    origin: () => process.env.CORS_ORIGIN || '*',
+    // origin: () => process.env.CORS_ORIGIN || '*',
+    origin: ctx => ctx.request.header.origin,
+    credentials: () => true,
   }
   return cors(corsOption)
 }
