@@ -43,7 +43,7 @@ export const list = async ctx => {
   const { username, tag } = ctx.query
   const conditions = {
     ...(username ? { '$Author.username$': username } : {}),
-    ...(tag ? { tags: { [Sequelize.Op.contains]: tag } } : {}),
+    ...(tag ? { tags: { [Sequelize.Op.contains]: [tag] } } : {}),
   }
   const pageSize = 10
 
