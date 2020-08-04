@@ -1,15 +1,42 @@
 import * as yup from 'yup'
+import sanitizeHtml from 'sanitize-html'
 
 import Database from '../../models'
 
 const { Sequelize, Post, User } = Database
+
+const sanitizeOption = {
+  allowedTags: [
+    'h1',
+    'h2',
+    'b',
+    'i',
+    'u',
+    's',
+    'p',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'a',
+    'img',
+  ],
+  allowedAttributes: {
+    a: ['href', 'name', 'target'],
+    img: ['src'],
+    li: ['class'],
+  },
+  allowedSchemes: ['data', 'http'],
+}
 
 export const getPostById = async (ctx, next) => {
   const { id } = ctx.params
   const postId = parseInt(id, 10)
 
   try {
-    const post = await Post.findByPk(postId)
+    const post = await Post.findByPk(postId, {
+      include: [{ model: User, as: 'Author', attributes: ['username'] }],
+    })
 
     if (!post) {
       ctx.status = 404
@@ -33,6 +60,12 @@ export const checkOwnPost = async (ctx, next) => {
   return next()
 }
 
+const removeHtmlAndShorten = content => {
+  const filtered = sanitizeHtml(content, {
+    allowedTags: [],
+  })
+  return filtered.length < 200 ? filtered : `${filtered.slice(0, 200)}...`
+}
 export const list = async ctx => {
   const page = parseInt(ctx.query.page || '1', 10)
   if (page < 1) {
@@ -45,7 +78,7 @@ export const list = async ctx => {
     ...(username ? { '$Author.username$': username } : {}),
     ...(tag ? { tags: { [Sequelize.Op.contains]: [tag] } } : {}),
   }
-  const pageSize = 10
+  const pageSize = 3
 
   try {
     const posts = await Post.findAndCountAll({
@@ -56,8 +89,14 @@ export const list = async ctx => {
       limit: pageSize,
       order: [['id', 'DESC']],
     })
-    ctx.set('Last-Page', Math.ceil(posts.count / pageSize))
-    ctx.body = posts.rows
+    ctx.set('last-page', Math.ceil(posts.count / pageSize))
+    ctx.body = posts.rows.map(row => {
+      const post = row.get({ plain: true })
+      return {
+        ...post,
+        content: removeHtmlAndShorten(post.content),
+      }
+    })
   } catch (e) {
     ctx.throw(500, e)
   }
@@ -80,10 +119,15 @@ export const create = async ctx => {
     const validPost = await postSchema.validate({ title, content, tags })
     const newPost = await Post.create({
       ...validPost,
+      content: sanitizeHtml(validPost.content, sanitizeOption),
       userId: ctx.state.user.id,
     })
 
-    ctx.body = newPost
+    const post = await Post.findByPk(newPost.id, {
+      include: [{ model: User, as: 'Author', attributes: ['username'] }],
+    })
+
+    ctx.body = post
   } catch (e) {
     if (e instanceof yup.ValidationError) {
       ctx.status = 400
@@ -105,6 +149,11 @@ export const update = async ctx => {
 
   try {
     const validPost = await postSchema.validate({ ...ctx.request.body })
+
+    if (validPost.content) {
+      validPost.content = sanitizeHtml(validPost.content, sanitizeOption)
+    }
+
     const [result, updatedPost] = await Post.update(validPost, {
       where: { id: postId },
       returning: true,
@@ -114,7 +163,12 @@ export const update = async ctx => {
       ctx.status = 404
       return
     }
-    ctx.body = updatedPost[0].get({ plain: true })
+
+    const post = await Post.findByPk(updatedPost[0].id, {
+      include: [{ model: User, as: 'Author', attributes: ['username'] }],
+    })
+
+    ctx.body = post
   } catch (e) {
     if (e instanceof yup.ValidationError) {
       ctx.status = 400
