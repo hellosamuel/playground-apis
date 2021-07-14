@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  playground-db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=playground
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=testpw
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8

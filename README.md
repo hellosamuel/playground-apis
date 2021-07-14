@@ -1,9 +1,22 @@
 # Playground
+
 - Private playground backend apis
 - Framework: Koa
 - NodeJS v12.13.1
 
+# Develop
+
+Please make sure that you set envs for starting server. you can check sample file at .env.sample
+
+```shell script
+$ yarn
+$ docker compose up -d
+$ yarn db:sync
+$ yarn start
+```
+
 # Build
+
 ```shell script
 $ yarn build
 
