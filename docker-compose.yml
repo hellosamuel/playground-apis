@@ -6,7 +6,7 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_DB=playground
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=testpw
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8
