@@ -33,7 +33,7 @@ export const checkOwnPost = async (ctx, next) => {
   return next()
 }
 
-export const list = async ctx => {
+export const list = async (ctx) => {
   const page = parseInt(ctx.query.page || '1', 10)
   if (page < 1) {
     ctx.status = 400
@@ -43,7 +43,7 @@ export const list = async ctx => {
   const { username, tag } = ctx.query
   const conditions = {
     ...(username ? { '$Author.username$': username } : {}),
-    ...(tag ? { tags: { [Sequelize.Op.contains]: tag } } : {}),
+    ...(tag ? { tags: { [Sequelize.Op.contains]: [tag] } } : {}),
   }
   const pageSize = 10
 
@@ -63,11 +63,11 @@ export const list = async ctx => {
   }
 }
 
-export const read = async ctx => {
+export const read = async (ctx) => {
   ctx.body = ctx.state.post
 }
 
-export const create = async ctx => {
+export const create = async (ctx) => {
   const { title, content, tags } = ctx.request.body
 
   const postSchema = yup.object({
@@ -94,7 +94,7 @@ export const create = async ctx => {
   }
 }
 
-export const update = async ctx => {
+export const update = async (ctx) => {
   const postId = parseInt(ctx.params.id, 10)
 
   const postSchema = yup.object({
@@ -125,7 +125,7 @@ export const update = async ctx => {
   }
 }
 
-export const remove = async ctx => {
+export const remove = async (ctx) => {
   const { post } = ctx.state
 
   try {
